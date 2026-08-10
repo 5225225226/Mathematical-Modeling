@@ -17,6 +17,10 @@ Mathematical-Modeling/
 │   ├── Q3_梯次筛选与编组多目标优化.md      （成员C，按早期口径）
 │   ├── Q4_多工况仿真与鲁棒性分析.md        （成员C，按早期口径）
 │   ├── Q2_成员B版本.md
+│   ├── 成员C_上传/                         ★ 成员C 原始上传（早期口径，保留存档）
+│   │   ├── 成员C_Q3Q4解答.md
+│   │   ├── C_battery_with_grade.csv        （字段/数据口径与规范 v1.1 不同，以规范版为准）
+│   │   └── C_selected_batteries.csv
 │   └── visualizations/           A题交互可视化 HTML
 ├── data/                         ★ 所有数据（统一接口标准）
 │   ├── 数据格式规范1.1.md          ← 全队数据接口唯一标准（★核心）

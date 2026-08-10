@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>锂电池容量衰减动态模型交互测试</title>
+
+<!-- KaTeX 公式渲染 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+<style>
+/* ==========================================================================
+   0. 全局变量与基础
+   ========================================================================== */
+:root {
+  --navy:   #1a2332;
+  --green:  #4caf84;
+  --green-d:#2e8b74;
+  --blue:   #2b6fce;
+  --orange: #f0a050;
+  --red:    #d95f5f;
+  --bg:     #f5f6f8;
+  --ink:    #2b3340;
+  --muted:  #5b6b7c;
+  --line:   #e3e7ee;
+  --radius: 12px;
+  --shadow: 0 8px 24px rgba(26,35,50,.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  background: linear-gradient(180deg, #f5f6f8 0%, #ffffff 40%);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   1. 整体布局（左右分栏）
+   ========================================================================== */
+.sim-wrap {
+  display: flex;
+  gap: 22px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 26px 24px;
+  align-items: flex-start;
+}
+.sim-panel {
+  width: 35%;
+  flex-shrink: 0;
+  background: #fafafa;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px 22px;
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+.sim-chart-area {
+  width: 65%;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px;
+}
+
+/* ==========================================================================
+   2. 左侧面板
+   ========================================================================== */
+.sim-panel h2 {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.sim-panel-sub { font-size: 12.5px; color: var(--muted); margin-bottom: 18px; }
+
+/* 预设工况按钮 */
+.sim-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+.sim-preset {
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 6px;
+  cursor: pointer;
+  transition: transform .15s, filter .2s, box-shadow .2s;
+  letter-spacing: .5px;
+}
+.sim-preset:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 4px 10px rgba(26,35,50,.18); }
+.sim-preset:active { transform: translateY(0); }
+.sim-preset--blue   { background: var(--blue); }
+.sim-preset--red    { background: var(--red); }
+.sim-preset--orange { background: #e0913a; }
+.sim-preset--purple { background: #8a63b8; }
+.sim-preset--gray   { background: #8a94a2; }
+
+.sim-divider { border: none; border-top: 1px dashed var(--line); margin: 18px 0; }
+
+/* 参数行 */
+.sim-param { margin-bottom: 16px; }
+.sim-param-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.sim-param-head label { font-size: 13.5px; font-weight: 700; color: var(--navy); }
+.sim-param-val {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--green-d);
+  font-family: "Segoe UI", Consolas, monospace;
+}
+.sim-row { display: flex; align-items: center; gap: 10px; }
+
+/* 滑块 */
+input[type="range"].sim-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--green) 0%, var(--blue) 100%);
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"].sim-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--blue);
+  cursor: pointer;
+  box-shadow: 0 1px 5px rgba(0,0,0,.25);
+}
+input[type="range"].sim-range::-moz-range-thumb {
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--blue);
+  cursor: pointer;
+  box-shadow: 0 1px 5px rgba(0,0,0,.25);
+}
+
+/* 数字输入框 */
+.sim-num-wrap { position: relative; flex-shrink: 0; }
+input[type="number"].sim-num {
+  width: 76px;
+  padding: 6px 8px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-family: "Segoe UI", Consolas, monospace;
+  text-align: center;
+  outline: none;
+  transition: border-color .2s;
+  background: #fff;
+  color: var(--ink);
+}
+input[type="number"].sim-num:focus { border-color: var(--blue); }
+/* 越界警告 */
+.sim-num-wrap.sim-warn input[type="number"].sim-num { border-color: var(--red); }
+.sim-warn-ico {
+  display: none;
+  position: absolute;
+  right: -20px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--red);
+  font-size: 15px;
+  cursor: help;
+}
+.sim-warn .sim-warn-ico { display: inline-block; }
+.sim-warn-ico:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  right: 0; top: 130%;
+  width: 200px;
+  background: #3c3f45;
+  color: #fff;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: normal;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0,0,0,.25);
+}
+
+/* 波动开关 */
+.sim-toggle { display: flex; align-items: center; gap: 8px; margin: 4px 0 16px; font-size: 13px; color: var(--muted); cursor: pointer; }
+.sim-toggle input { accent-color: var(--green); width: 16px; height: 16px; cursor: pointer; }
+
+/* 指标卡片 */
+.sim-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px; }
+.sim-metric {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 8px 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(26,35,50,.05);
+}
+.sim-metric-num {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--navy);
+  font-family: "Segoe UI", Consolas, monospace;
+  line-height: 1.2;
+}
+.sim-metric-num.is-warn { color: var(--red); font-size: 19px; }
+.sim-metric small {
+  display: block;
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 5px;
+  line-height: 1.4;
+}
+
+/* 公式区 */
+.sim-formula {
+  margin-top: 20px;
+  background: var(--navy);
+  border-radius: 10px;
+  padding: 16px 14px;
+  text-align: center;
+  color: #fff;
+}
+.sim-formula .katex { font-size: 1.02em; }
+.sim-formula + .sim-formula { margin-top: 10px; }
+.sim-formula-note {
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: #8a94a2;
+  line-height: 1.6;
+}
+.sim-formula-note code { color: var(--green); background: rgba(76,175,132,.1); padding: 1px 5px; border-radius: 4px; }
+
+/* ==========================================================================
+   3. 右侧图表区
+   ========================================================================== */
+.sim-chart-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.sim-chart-head h2 { font-size: 18px; font-weight: 800; color: var(--navy); }
+.sim-chart-head span { font-size: 12px; color: var(--muted); }
+.sim-chart { height: 520px; width: 100%; }
+.sim-chart-note { font-size: 12px; color: #8a94a2; margin-top: 8px; }
+.sim-chart-note::before { content: "※ "; color: var(--orange); }
+
+/* ==========================================================================
+   4. 响应式
+   ========================================================================== */
+@media (max-width: 768px) {
+  .sim-wrap { flex-direction: column; padding: 16px 14px; gap: 16px; }
+  .sim-panel, .sim-chart-area { width: 100%; position: static; max-height: none; }
+  .sim-chart { height: 340px; }
+  .sim-metrics { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .sim-metric-num { font-size: 20px; }
+  .sim-presets { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="sim-wrap">
+  <!-- ==================== 左侧：参数面板 ==================== -->
+  <aside class="sim-panel">
+    <h2>模型参数设置</h2>
+    <p class="sim-panel-sub">基于幂律 + Arrhenius 退化模型（文献 Ver22）</p>
+
+    <!-- 预设工况 -->
+    <div class="sim-presets">
+      <button class="sim-preset sim-preset--blue"   data-preset='{"T":25,"C":1,"DoD":80,"z":0.65,"Ea":0.4,"alpha":0.03,"beta_d":1.2}'>标准工况</button>
+      <button class="sim-preset sim-preset--red"    data-preset='{"T":45,"C":1,"DoD":80,"z":0.65,"Ea":0.4,"alpha":0.03,"beta_d":1.2}'>高温工况</button>
+      <button class="sim-preset sim-preset--orange" data-preset='{"T":25,"C":3,"DoD":80,"z":0.7,"Ea":0.4,"alpha":0.03,"beta_d":1.2}'>高倍率工况</button>
+      <button class="sim-preset sim-preset--purple" data-preset='{"T":25,"C":1,"DoD":95,"z":0.7,"Ea":0.4,"alpha":0.03,"beta_d":1.2}'>深放电工况</button>
+      <button class="sim-preset sim-preset--gray"   data-preset="reset">自定义（恢复默认）</button>
+    </div>
+
+    <hr class="sim-divider">
+
+    <!-- 参数输入 -->
+    <div class="sim-param">
+      <div class="sim-param-head">
+        <label for="pT">环境温度 T</label>
+        <span class="sim-param-val" data-vkey="T">25 °C</span>
+      </div>
+      <div class="sim-row">
+        <input type="range" class="sim-range" id="pT"   data-key="T" min="-10" max="60" step="1" value="25">
+        <span class="sim-num-wrap">
+          <input type="number" class="sim-num" data-key="T" min="-10" max="60" step="1" value="25">
+          <span class="sim-warn-ico" data-tip="温度过低（&lt;-10°C），可能导致低温析锂加速">⚠️</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="sim-param">
+      <div class="sim-param-head">
+        <label for="pC">充放电倍率 C (C-rate)</label>
+        <span class="sim-param-val" data-vkey="C">1.0 C</span>
+      </div>
+      <div class="sim-row">
+        <input type="range" class="sim-range" id="pC"   data-key="C" min="0.5" max="5" step="0.1" value="1">
+        <span class="sim-num-wrap">
+          <input type="number" class="sim-num" data-key="C" min="0.5" max="5" step="0.1" value="1">
+          <span class="sim-warn-ico" data-tip="倍率过高（&gt;5C），机械应力与析锂将剧烈加速老化">⚠️</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="sim-param">
+      <div class="sim-param-head">
+        <label for="pDoD">放电深度 DoD</label>
+        <span class="sim-param-val" data-vkey="DoD">80 %</span>
+      </div>
+      <div class="sim-row">
+        <input type="range" class="sim-range" id="pDoD" data-key="DoD" min="20" max="100" step="1" value="80">
+        <span class="sim-num-wrap">
+          <input type="number" class="sim-num" data-key="DoD" min="20" max="100" step="1" value="80">
+        </span>
+      </div>
+    </div>
+
+    <div class="sim-param">
+      <div class="sim-param-head">
+        <label for="pz">幂指数 z</label>
+        <span class="sim-param-val" data-vkey="z">0.65</span>
+      </div>
+      <div class="sim-row">
+        <input type="range" class="sim-range" id="pz"  data-key="z" min="0.5" max="0.8" step="0.01" value="0.65">
+        <span class="sim-num-wrap">
+          <input type="number" class="sim-num" data-key="z" min="0.5" max="0.8" step="0.01" value="0.65">
+        </span>
+      </div>
+    </div>
+
+    <div class="sim-param">
+      <div class="sim-param-head">
+        <label for="pN">最大循环次数（x 轴范围）</label>
+        <span class="sim-param-val" data-vkey="Nmax">2000</span>
+      </div>
+      <div class="sim-row">
+        <input type="range" class="sim-range" id="pN"  data-key="Nmax" min="500" max="5000" step="100" value="2000">
+        <span class="sim-num-wrap">
+          <input type="number" class="sim-num" data-key="Nmax" min="500" max="5000" step="100" value="2000">
+        </span>
+      </div>
+    </div>
+
+    <div class="sim-param">
+      <div class="sim-param-head">
+        <label for="pEa">激活能 Ea (eV)</label>
+        <span class="sim-param-val" data-vkey="Ea">0.40 eV</span>
+      </div>
+      <div class="sim-row">
+        <input type="range" class="sim-range" id="pEa" data-key="Ea" min="0.3" max="0.6" step="0.01" value="0.4">
+        <span class="sim-num-wrap">
+          <input type="number" class="sim-num" data-key="Ea" min="0.3" max="0.6" step="0.01" value="0.4">
+        </span>
+      </div>
+    </div>
+
+    <div class="sim-param">
+      <div class="sim-param-head">
+        <label for="pAlpha">倍率耦合系数 α</label>
+        <span class="sim-param-val" data-vkey="alpha">0.03</span>
+      </div>
+      <div class="sim-row">
+        <input type="range" class="sim-range" id="pAlpha" data-key="alpha" min="0.01" max="0.1" step="0.01" value="0.03">
+        <span class="sim-num-wrap">
+          <input type="number" class="sim-num" data-key="alpha" min="0.01" max="0.1" step="0.01" value="0.03">
+        </span>
+      </div>
+    </div>
+
+    <div class="sim-param">
+      <div class="sim-param-head">
+        <label for="pBd">DoD 系数 β_d</label>
+        <span class="sim-param-val" data-vkey="beta_d">1.20</span>
+      </div>
+      <div class="sim-row">
+        <input type="range" class="sim-range" id="pBd" data-key="beta_d" min="0.5" max="2.0" step="0.05" value="1.2">
+        <span class="sim-num-wrap">
+          <input type="number" class="sim-num" data-key="beta_d" min="0.5" max="2.0" step="0.05" value="1.2">
+        </span>
+      </div>
+    </div>
+
+    <label class="sim-toggle">
+      <input type="checkbox" id="wobble" checked>
+      <span>叠加容量再生波动（幅度 0.02 Ah · 周期 200 循环）</span>
+    </label>
+
+    <!-- 关键指标卡片 -->
+    <hr class="sim-divider">
+    <div class="sim-metrics">
+      <div class="sim-metric">
+        <div class="sim-metric-num" id="mEol">--</div>
+        <small>预计失效循环数<br>（容量降至 70%）</small>
+      </div>
+      <div class="sim-metric">
+        <div class="sim-metric-num" id="mKnee">--</div>
+        <small>加速拐点循环数<br>（SOH ≈ 82%）</small>
+      </div>
+      <div class="sim-metric">
+        <div class="sim-metric-num" id="mQ1000">--</div>
+        <small>第 1000 次循环<br>剩余容量 SOH</small>
+      </div>
+    </div>
+
+    <!-- 模型公式（KaTeX） -->
+    <div class="sim-formula" data-formula="Q(n) = Q_0 - \Delta Q(n), \quad Q_0 = 2.0\ \mathrm{Ah}"></div>
+    <div class="sim-formula" data-formula="\Delta Q(n) = A\, f(T,C,DoD)\, n^{z}"></div>
+    <div class="sim-formula" data-formula="f = e^{-E_a/(R\,T_K)}\, (1+\beta_c C^{\gamma})\, (1+\beta_d\, (DoD/100)^{\delta})"></div>
+    <div class="sim-formula-note">
+      <code>T_K = T + 273.15</code> ·
+      <code>E_a (kJ/mol) = E_a (eV) × 96.485</code> ·
+      <code>β_c^eff = β_c + α·C</code> ·
+      <code>γ = 1.5, δ = 1.0, A = 1e4</code><br>
+      当 <b>SOH &lt; 0.82</b> 时，退化速率额外乘以 <code>(1 + 0.5·(0.82 − SOH)/0.12)</code>（拐点后加速）
+    </div>
+  </aside>
+
+  <!-- ==================== 右侧：图表区 ==================== -->
+  <main class="sim-chart-area">
+    <div class="sim-chart-head">
+      <h2>电池容量衰减动态模拟</h2>
+      <span>初始容量 2.0 Ah · 失效阈值 1.4 Ah（SOH 70%）</span>
+    </div>
+    <div id="simChart" class="sim-chart"></div>
+    <p class="sim-chart-note">数据基于文献 [Ver22] 幂律 + Arrhenius 模型趋势模拟，仅供交互演示。</p>
+  </main>
+</div>
+
+<!-- ECharts + KaTeX -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<script>
+/* ==========================================================================
+   锂电池容量衰减动态模型 · 交互测试
+   - IIFE 模块，避免全局变量污染
+   - 关键函数：calculateDegradation() / updateChart() / initPresetButtons()
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  /* ---------- 模型常量（文献 Ver22） ---------- */
+  const Q0 = 2.0;          // 初始容量 (Ah)
+  const A  = 1e4;          // 缩放系数（量级校准）
+  const R  = 8.314e-3;     // 气体常数 kJ/(mol·K)
+  const BETA_C = 0.15;     // 倍率系数
+  const GAMMA   = 1.5;     // 倍率指数
+  const DELTA   = 1.0;     // DoD 指数
+  const EOL_CAP = 1.4;     // 失效阈值（SOH 70%）
+  const KNEE_CAP = Q0 * 0.82; // 加速拐点（SOH 82%）
+
+  let chart = null;
+
+  /* ==========================================================================
+     ① 参数读取：从 DOM 控件读取当前参数
+     ========================================================================== */
+  function getParams() {
+    const read = function (key) {
+      const el = document.querySelector('[data-key="' + key + '"]');
+      return el ? parseFloat(el.value) : 0;
+    };
+    return {
+      T:     read('T'),
+      C:     read('C'),
+      DoD:   read('DoD'),
+      z:     read('z'),
+      Nmax:  read('Nmax'),
+      Ea:    read('Ea'),
+      alpha: read('alpha'),
+      beta_d:read('beta_d')
+    };
+  }
+
+  /* ==========================================================================
+     ② 退化模型计算
+     返回 { pts, knee, eol, q1000 }
+     pts  : [ [n, Q(n)], ... ]  基础曲线（不含波动）
+     knee : 加速拐点循环数（SOH 82%）或 null
+     eol  : 失效循环数（SOH 70%）或 null
+     q1000: 第 1000（或 Nmax）次循环的剩余容量
+     ========================================================================== */
+  function calculateDegradation(p) {
+    const TK = p.T + 273.15;
+    // 激活能 eV → kJ/mol；β_c 叠加倍率耦合修正
+    const Ea_kJ  = p.Ea * 96.485;
+    const beta_c = BETA_C + p.alpha * p.C;
+    // 温度 Arrhenius × 倍率项 × DoD 项
+    const f = Math.exp(-Ea_kJ / (R * TK))
+            * (1 + beta_c * Math.pow(p.C, GAMMA))
+            * (1 + p.beta_d * Math.pow(p.DoD / 100, DELTA));
+
+    let Q = Q0;
+    let knee = null, eol = null;
+    const pts = [[0, Q0]];
+
+    for (let n = 1; n <= p.Nmax; n++) {
+      const SOH = Q / Q0;
+      // 拐点后加速因子（SOH < 82% 时放大退化速率）
+      let accel = 1;
+      if (SOH < 0.82) accel = 1 + 0.5 * (0.82 - SOH) / 0.12;
+
+      // 幂律增量 ΔQ(n) = A·f·[n^z − (n−1)^z] × 加速因子
+      const step = A * f * (Math.pow(n, p.z) - Math.pow(n - 1, p.z)) * accel;
+      Q -= step;
+      if (Q < 0) Q = 0;
+
+      if (knee === null && Q <= KNEE_CAP) knee = n;
+      if (eol === null && Q <= EOL_CAP)  eol  = n;
+
+      pts.push([n, +Q.toFixed(4)]);
+    }
+
+    const idx = Math.min(1000, p.Nmax);
+    return { pts: pts, knee: knee, eol: eol, q1000: pts[idx][1] };
+  }
+
+  /* ==========================================================================
+     ③ 指标卡片更新
+     ========================================================================== */
+  function updateMetrics(res, p) {
+    const set = function (id, val, isWarn) {
+      const el = document.getElementById(id);
+      el.textContent = val;
+      el.classList.toggle('is-warn', !!isWarn);
+    };
+    // 失效循环数
+    if (res.eol !== null) set('mEol', res.eol);
+    else set('mEol', '> ' + p.Nmax, true);
+    // 拐点循环数
+    if (res.knee !== null) set('mKnee', res.knee);
+    else set('mKnee', '未达', true);
+    // 第1000次循环 SOH
+    const soh = (res.q1000 / Q0 * 100);
+    set('mQ1000', soh.toFixed(1) + '%', soh < 70);
+  }
+
+  /* ==========================================================================
+     ④ 图表渲染 updateChart()
+     ========================================================================== */
+  function updateChart() {
+    const p = getParams();
+    const res = calculateDegradation(p);
+
+    updateMetrics(res, p);
+
+    // x 轴显示范围：Nmax 基础上扩展以完整展示失效点
+    const xmax = (res.eol !== null && res.eol <= p.Nmax * 3)
+      ? Math.max(p.Nmax, Math.ceil(res.eol * 1.06))
+      : p.Nmax;
+
+    // 三阶段背景边界
+    const p1End = Math.max(10, Math.round(p.Nmax * 0.06));
+    const p2End = (res.knee !== null) ? res.knee : (res.eol !== null ? Math.round(res.eol * 0.85) : p.Nmax);
+    const mkArea = [
+      { start: 0,      end: p1End, name: 'Phase 1 · 正常运行期', color: 'rgba(76,175,132,.08)' },
+      { start: p1End,  end: p2End, name: 'Phase 2 · 性能劣化期', color: 'rgba(240,160,80,.08)' },
+      { start: p2End,  end: xmax,  name: 'Phase 3 · 失效临界期', color: 'rgba(217,95,95,.10)' }
+    ];
+
+    // 容量再生波动（显示用）
+    const wobble = document.getElementById('wobble').checked;
+    const display = res.pts.map(function (pt) {
+      let q = pt[1];
+      if (wobble) {
+        q += 0.02 * Math.sin(2 * Math.PI * pt[0] / 200);
+        q = Math.max(0, Math.min(Q0, q));
+      }
+      return [pt[0], +q.toFixed(4)];
+    });
+
+    // 拐点散点
+    const kneePoint = (res.knee !== null)
+      ? [{ coord: [res.knee, res.pts[res.knee][1]], value: 'SOH≈82%' }]
+      : [];
+
+    const option = {
+      animationDuration: 300,
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'cross' },
+        backgroundColor: 'rgba(26,35,50,.92)',
+        borderColor: 'rgba(255,255,255,.15)',
+        textStyle: { color: '#fff', fontSize: 12.5 },
+        formatter: function (params) {
+          const n = params[0].axisValue;
+          const q = params[0].data[1];
+          return '<b>循环次数 n = ' + n + '</b><br>' +
+            '剩余容量 <b>' + q.toFixed(3) + ' Ah</b><br>' +
+            'SOH <b>' + (q / Q0 * 100).toFixed(1) + '%</b>';
+        }
+      },
+      legend: { data: ['容量衰减'], top: 4, textStyle: { color: '#5b6b7c' } },
+      grid: { left: 58, right: 26, top: 66, bottom: 46 },
+      xAxis: {
+        type: 'value',
+        name: '循环次数 n',
+        min: 0, max: xmax,
+        nameTextStyle: { color: '#8a94a2' },
+        axisLabel: { color: '#5b6b7c' },
+        axisLine: { lineStyle: { color: '#c6ced8' } },
+        splitLine: { show: false }
+      },
+      yAxis: {
+        type: 'value',
+        name: '剩余容量 (Ah)',
+        min: 0, max: 2.1,
+        nameTextStyle: { color: '#2e8b74' },
+        axisLabel: { color: '#5b6b7c' },
+        splitLine: { lineStyle: { color: '#eef1f5' } }
+      },
+      dataZoom: [
+        { type: 'inside', xAxisIndex: 0 },
+        { type: 'slider', xAxisIndex: 0, height: 16, bottom: 8, borderColor: '#e3e7ee' }
+      ],
+      graphic: [{
+        type: 'text',
+        right: 8, top: 6,
+        style: {
+          text: 'T = ' + p.T + '°C   ·   C = ' + p.C + 'C   ·   DoD = ' + p.DoD + '%   ·   z = ' + p.z,
+          fontSize: 12, fill: '#5b6b7c', fontWeight: 600
+        }
+      }],
+      series: [{
+        name: '容量衰减',
+        type: 'line',
+        data: display,
+        smooth: true,
+        symbol: 'none',
+        lineStyle: {
+          width: 2,
+          color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+            { offset: 0, color: '#2b6fce' },
+            { offset: 1, color: '#4caf84' }
+          ])
+        },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(76,175,132,.28)' },
+            { offset: 1, color: 'rgba(76,175,132,.02)' }
+          ])
+        },
+        // 三阶段背景
+        markArea: {
+          silent: true,
+          label: {
+            show: true, position: 'insideBottom', fontSize: 10.5, color: '#9aa7b5'
+          },
+          itemStyle: { borderWidth: 0 },
+          data: mkArea.map(function (m) {
+            return [{
+              xAxis: m.start,
+              name: m.name,
+              itemStyle: { color: m.color }
+            }, {
+              xAxis: m.end,
+              itemStyle: { color: m.color }
+            }];
+          })
+        },
+        // 失效阈值线
+        markLine: (res.eol !== null && res.eol <= xmax) ? {
+          symbol: 'none',
+          silent: true,
+          label: {
+            show: true, position: 'end',
+            formatter: '失效阈值 SOH=70%', color: '#d95f5f', fontSize: 11
+          },
+          lineStyle: { color: '#d95f5f', type: 'dashed', width: 1.5 },
+          data: [{ yAxis: EOL_CAP }]
+        } : { data: [] },
+        // 加速拐点标记
+        markPoint: {
+          symbol: 'pin',
+          symbolSize: 44,
+          label: {
+            show: true,
+            formatter: '{c}',
+            fontSize: 9.5,
+            color: '#c2762e',
+            fontWeight: 700
+          },
+          itemStyle: { color: '#e0913a' },
+          data: kneePoint
+        }
+      }]
+    };
+
+    if (!chart) {
+      chart = echarts.init(document.getElementById('simChart'));
+    }
+    chart.setOption(option, true);
+  }
+
+  /* ==========================================================================
+     ⑤ 防抖：参数修改 200ms 后刷新
+     ========================================================================== */
+  let debounceTimer = null;
+  function scheduleUpdate() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(updateChart, 200);
+  }
+
+  /* ==========================================================================
+     ⑥ 控件绑定：滑块 ↔ 数字框 双向同步
+     ========================================================================== */
+  function syncAll() {
+    document.querySelectorAll('.sim-range').forEach(function (r) {
+      const n = document.querySelector('[data-key="' + r.dataset.key + '"]');
+      if (n) n.value = r.value;
+      const v = document.querySelector('[data-vkey="' + r.dataset.key + '"]');
+      if (v) {
+        const val = parseFloat(r.value);
+        const unit = (r.dataset.key === 'T') ? ' °C'
+          : (r.dataset.key === 'C') ? ' C'
+          : (r.dataset.key === 'DoD') ? ' %'
+          : (r.dataset.key === 'Ea') ? ' eV'
+          : '';
+        v.textContent = (r.dataset.key === 'DoD' || r.dataset.key === 'Nmax' || r.dataset.key === 'T') ? r.value : val.toFixed(r.step.indexOf('.') >= 0 ? r.step.split('.')[1].length : 0) + unit;
+      }
+    });
+  }
+
+  // 滑块 → 更新数字 + 值标签
+  document.querySelectorAll('.sim-range').forEach(function (r) {
+    r.addEventListener('input', function () {
+      const n = document.querySelector('[data-key="' + r.dataset.key + '"]');
+      if (n) n.value = r.value;
+      syncVal(r);
+      scheduleUpdate();
+    });
+  });
+
+  // 数字框 → 越界警告 + 更新滑块 + 值标签
+  document.querySelectorAll('.sim-num').forEach(function (n) {
+    n.addEventListener('input', function () {
+      const key = n.dataset.key;
+      const r = document.querySelector('.sim-range[data-key="' + key + '"]');
+      const wrap = n.closest('.sim-num-wrap');
+      const min = parseFloat(n.min), max = parseFloat(n.max);
+      const v = parseFloat(n.value);
+
+      // 越界警告（温度 < -10 或 倍率 > 5 等）
+      if (!isNaN(v) && (v < min || v > max)) {
+        wrap.classList.add('sim-warn');
+      } else {
+        wrap.classList.remove('sim-warn');
+      }
+      // 同步滑块（clamp）
+      if (!isNaN(v) && r) {
+        const clamped = Math.min(max, Math.max(min, v));
+        r.value = clamped;
+      }
+      syncVal(n);
+      scheduleUpdate();
+    });
+    // 失焦时规整数字
+    n.addEventListener('blur', function () {
+      const min = parseFloat(n.min), max = parseFloat(n.max);
+      const v = parseFloat(n.value);
+      if (!isNaN(v)) n.value = Math.min(max, Math.max(min, v));
+      n.closest('.sim-num-wrap').classList.remove('sim-warn');
+    });
+  });
+
+  // 刷新单行值标签
+  function syncVal(el) {
+    const key = el.dataset.key;
+    const v = document.querySelector('[data-vkey="' + key + '"]');
+    if (!v) return;
+    const val = parseFloat(el.value);
+    if (key === 'T') v.textContent = val + ' °C';
+    else if (key === 'C') v.textContent = val.toFixed(1) + ' C';
+    else if (key === 'DoD') v.textContent = val + ' %';
+    else if (key === 'Ea') v.textContent = val.toFixed(2) + ' eV';
+    else if (key === 'Nmax') v.textContent = val;
+    else v.textContent = String(val);
+  }
+
+  // 容量再生波动开关
+  document.getElementById('wobble').addEventListener('change', scheduleUpdate);
+
+  /* ==========================================================================
+     ⑦ 预设工况按钮 initPresetButtons()
+     ========================================================================== */
+  function initPresetButtons() {
+    document.querySelectorAll('.sim-preset').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const preset = btn.dataset.preset;
+        if (preset === 'reset') {
+          // 自定义：恢复默认
+          const def = { T: 25, C: 1, DoD: 80, z: 0.65, Ea: 0.4, alpha: 0.03, beta_d: 1.2, Nmax: 2000 };
+          Object.keys(def).forEach(function (key) {
+            const r = document.querySelector('.sim-range[data-key="' + key + '"]');
+            const n = document.querySelector('.sim-num[data-key="' + key + '"]');
+            if (r) r.value = def[key];
+            if (n) n.value = def[key];
+          });
+        } else {
+          const obj = JSON.parse(preset);
+          Object.keys(obj).forEach(function (key) {
+            const r = document.querySelector('.sim-range[data-key="' + key + '"]');
+            const n = document.querySelector('.sim-num[data-key="' + key + '"]');
+            if (r) r.value = obj[key];
+            if (n) n.value = obj[key];
+          });
+        }
+        syncAll();
+        document.querySelectorAll('.sim-num').forEach(function (n) {
+          n.closest('.sim-num-wrap').classList.remove('sim-warn');
+        });
+        updateChart(); // 立即刷新
+      });
+    });
+  }
+
+  /* ---------- 初始化 ---------- */
+  initPresetButtons();
+  syncAll();
+  updateChart();
+
+  // 窗口尺寸变化时图表自适应
+  window.addEventListener('resize', function () {
+    if (chart) chart.resize();
+  });
+
+  // KaTeX 公式渲染
+  document.querySelectorAll('[data-formula]').forEach(function (el) {
+    try {
+      el.innerHTML = katex.renderToString(el.getAttribute('data-formula'), { displayMode: true, throwOnError: false });
+    } catch (e) { /* 保留原文 */ }
+  });
+})();
+</script>
+
+</body>
+</html>

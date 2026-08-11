@@ -9,5 +9,7 @@ paper/*.synctex.gz
 # Python 缓存
 __pycache__/
 *.pyc
+# 虚拟环境
+.venv/
 # 临时
 *.tmp

@@ -1,11 +1,11 @@
 # LaTeX 编译产物
-paper/*.aux
-paper/*.log
-paper/*.out
-paper/*.bbl
-paper/*.blg
-paper/*.toc
-paper/*.synctex.gz
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.toc
+*.synctex.gz
 # Python 缓存
 __pycache__/
 *.pyc

@@ -1,94 +1,88 @@
 # 数学建模竞赛 A题 —— 锂电池剩余寿命预测与梯次利用筛选优化
 
-> **共享仓库**：本仓库用于全队同步 A 题进度、数据、解答与论文。
-> 数据接口严格执行 [`data/数据格式规范1.1.md`](data/数据格式规范1.1.md)，全队字段、命名、分级/阶段代码统一。
-> 最新论文草稿：[`paper/main.pdf`](paper/main.pdf)（16 页，xelatex 编译）。
+> **提交物组织**：本仓库已按《全国大学生数学建模竞赛参赛论文与支撑材料格式规范》第十、十一条对全部内容分类归档，分为「参赛论文 / 论文源 / 支撑材料」三部分。
+> 最新参赛论文：[`参赛论文/参赛论文.pdf`](参赛论文/参赛论文.pdf)（51 页，含附录，第一页为摘要专用页）。
+> 支撑材料文件列表见论文附录 A，完整源码见附录 C。
 
 ---
 
-## 目录结构
+## 目录结构（按规范分类）
 
 ```
 Mathematical-Modeling/
-├── README.md                     ← 本文件（导航）
-├── solution_A/                   ★ A题解答（分问题 Markdown + 可视化）
-│   ├── 问题1_退化特征分析与影响因子辨识.md
-│   ├── 问题2_SOH评估与RUL预测建模.md
-│   ├── Q3_梯次筛选与编组多目标优化.md      （成员C，按早期口径）
-│   ├── Q4_多工况仿真与鲁棒性分析.md        （成员C，按早期口径）
-│   ├── Q2_成员B版本.md
-│   ├── 成员C_上传/                         ★ 成员C 原始上传（早期口径，保留存档）
-│   │   ├── 成员C_Q3Q4解答.md
-│   │   ├── C_battery_with_grade.csv        （字段/数据口径与规范 v1.1 不同，以规范版为准）
-│   │   └── C_selected_batteries.csv
-│   └── visualizations/           A题交互可视化 HTML
-├── data/                         ★ 所有数据（统一接口标准）
-│   ├── 数据格式规范1.1.md          ← 全队数据接口唯一标准（★核心）
-│   ├── 00_数据汇总说明.md  / 01_数据来源清单.md
-│   ├── 02_统一数据集格式_可直接入模.md / 03_数据资产现状清单.md
-│   ├── dataset/                   ← 数据文件
-│   │   ├── battery_timeseries.csv       成员A：完整时序（153 块电池）
-│   │   ├── battery_final_states.csv     成员A：每块电池最终状态
-│   │   ├── battery_health_indicators.csv 成员B接口：含 RUL（已生成）
-│   │   ├── selected_batteries.csv       成员C接口：分级 + 编组选中（已生成）
-│   │   ├── battery_meta.csv / eis_spectrum.csv
-│   │   ├── generate_sim.py / generate_data.py / convert_to_spec.py
-│   │   └── ...
-│   └── PDF文件/                  本地 PDF 归档
-├── references/                   ★ 资料库（竞赛试题/规则/论文精读/建模知识/工具速成）
-│   ├── README_资料索引.md          ← 资料导航入口
-│   ├── 01_竞赛试题 ~ 07_论文pdf原件资料
-├── paper/                        ★ 论文（LaTeX + PDF）
-│   ├── main.tex                   论文主文件（xelatex + bibtex 编译）
-│   ├── main.pdf                   编译产物（最新草稿）
-│   ├── figures/                  数据可视化图（Q1-Q4）
-│   ├── code/analyze.py           Q1/Q2 分析脚本
-│   ├── cumcmthesis.cls / ref.bib / gbt7714-numerical.bst
-│   └── fonts/                    模板字体（Source Han Serif / YaHei Consolas）
+├── 参赛论文/                         ★ 提交物①：参赛论文电子版（单独 PDF，≤20MB）
+│   └── 参赛论文.pdf                  ← 第一页为摘要专用页，含摘要/正文/参考文献/附录
+├── 论文源/                           ★ 论文 LaTeX 源（可编译复现）
+│   ├── main.tex                      论文主文件（xelatex + bibtex 编译）
+│   ├── cumcmthesis.cls / gbt7714-numerical.bst / ref.bib
+│   ├── fonts/                        模板字体
+│   └── q2_section.tex                问题2 章节草稿
+└── 支撑材料/                         ★ 提交物②：支撑材料（源程序/数据/图表/资料）
+    ├── 程序代码/                     7 个可运行源程序（附录 C 全文列出）
+    │   ├── q1_solution.py            问题1 全流程（特征体系/三阶段/因子量化/综合退化模型/合理性验证）
+    │   ├── q2_solution.py            问题2 全流程（SOH辨识/EEMD-GRU RUL预测/扰动/灵敏度）
+    │   ├── analyze.py                共享分析脚本（问题1/2 图表与量化结果）
+    │   ├── preprocess_figs.py        数据预处理图表脚本
+    │   ├── generate_sim.py           仿真数据生成器（多因子衰减模型，成员A）
+    │   ├── generate_data.py          派生数据表生成器（健康指标表+选中结果表）
+    │   └── convert_to_spec.py        数据格式规范 v1.1 转换脚本
+    ├── 数据/                         数据文件 + 规范 + 来源
+    │   ├── battery_*.csv             时序/最终状态/健康指标/选中结果 等 7 张表
+    │   ├── 数据格式规范1.1.md        全队数据接口唯一标准
+    │   ├── 00_数据汇总说明.md / 01_数据来源清单.md / 02_统一数据集格式 / 03_数据资产现状清单
+    │   ├── PDF_files/                本地 PDF 归档
+    │   └── q1_results.json / q2_results.json / results.json   中间结果（脚本输出）
+    ├── 图表/                         论文全部图件（中间结果，共 15 张）
+    ├── 解答文档/                     各问题分步解答（Markdown + 可视化 + 成员C上传）
+    └── 参考资料/                     备赛资料库与知识库（竞赛试题/规则/精读/建模知识/工具速成/论文原件）
 ```
+
+## 分类依据（《规范》第十、十一条）
+
+| 类别 | 对应提交物 | 说明 |
+|------|-----------|------|
+| 参赛论文 | ① 参赛论文/参赛论文.pdf | 单独 PDF，第一页为摘要专用页，≤20MB |
+| 支撑材料·可运行源程序 | ② 支撑材料/程序代码/ | 全部建模与绘图源码，附录 C 全文列出 |
+| 支撑材料·数据资料 | ② 支撑材料/数据/ | 建模所用数据表、规范与来源清单 |
+| 支撑材料·中间结果图表 | ② 支撑材料/图表/ | 较大篇幅图表结果 |
+| 支撑材料·自主查阅资料 | ② 支撑材料/参考资料/ | 竞赛试题、规则、精读文献与知识库 |
+| 论文附录 | 参赛论文.pdf 附录 | 附录 A 支撑材料清单 / B 数据说明 / C 程序代码 / D 参考资料索引 |
+
+> 支撑材料与论文内容一致：附录 A 文件列表与 `支撑材料/` 实际内容一一对应；附录 C 源码与 `程序代码/` 文件逐行一致。
 
 ---
 
-## 数据流转（对应 `数据格式规范1.1.md` §5）
-
-```
-成员A ──生成──▶ battery_timeseries.csv / battery_final_states.csv
-                     │
-                     ▼
-成员B ──读取+建模──▶ battery_health_indicators.csv（含 RUL）
-                     │
-                     ▼
-成员C ──分级+优化──▶ selected_batteries.csv（selected/cluster/grade）
-```
-
-- `data/dataset/generate_sim.py`：成员A 仿真数据生成器（多因子衰减模型，参数含文献来源）。
-- `data/dataset/generate_data.py`：生成成员B/C 接口表，可直接运行复现。
-
----
-
-## 论文编译
+## 论文编译（复现参赛论文）
 
 ```bash
-cd paper
+cd 论文源
 xelatex main.tex
 bibtex main
 xelatex main.tex
 xelatex main.tex
 ```
 
-要求：MiKTeX/TeXLive + XeLaTeX；字体位于 `paper/fonts/`，编译需在 `paper/` 目录内进行。
+编译产物 `论文源/main.pdf` 即 `参赛论文/参赛论文.pdf`（复制更新即可）。要求：MiKTeX/TeXLive + XeLaTeX；字体位于 `论文源/fonts/`，编译需在 `论文源/` 目录内进行。
+
+## 数据流转（对应 `数据格式规范1.1.md` §5）
+
+```
+成员A ──generate_sim.py──▶ battery_timeseries / final_states
+        ──convert_to_spec.py──▶ 规范字段
+成员B ──generate_data.py──▶ battery_health_indicators.csv（含 RUL）
+成员C ──分级+优化──▶ selected_batteries.csv（selected/cluster/grade）
+```
+
+在 `支撑材料/程序代码/` 目录下运行脚本，输入输出均定位于 `支撑材料/数据/` 与 `支撑材料/图表/`，随机种子固定可复现。
 
 ---
 
 ## 当前进度
 
-| 项目 | 状态 | 说明 |
-|------|------|------|
-| 数据规范 v1.1 | ✅ | 全队统一接口标准 |
-| 时序/最终状态数据 | ✅ | 153 块电池，多工况 |
-| 健康指标表 | ✅ | 已生成演示 RUL（可替换） |
-| 选中结果表 | ✅ | 分级 + 编组选中 |
-| 问题1 解答 | ✅ | 退化特征 + 因子量化 |
-| 问题2 解答 | ✅ | SOH + RUL 建模思路 |
-| 问题3/4 解答 | ✅ | 分级 + 优化 + 鲁棒性 |
-| 论文草稿 | ✅ | 16 页 PDF 草稿 |
+| 项目 | 状态 |
+|------|------|
+| 数据规范 v1.1 / 仿真数据（153 块电池） | ✅ |
+| 问题1 退化特征分析 + 因子量化 | ✅ |
+| 问题2 SOH 评估 + RUL 预测（EEMD-GRU 主模型） | ✅ |
+| 问题3/4 筛选编组 + 鲁棒性 | ✅ |
+| 参赛论文（51 页，含附录 A–D） | ✅ |

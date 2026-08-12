@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 A题 数据分析脚本 —— 基于共享数据集计算问题1~4量化结果并生成论文图表
-数据集: data/dataset/  (battery_meta / battery_timeseries / battery_final_states)
-输出:   paper/figures/*.png   paper/code/results.json
-运行:   python paper/code/analyze.py
+数据集: 支撑材料/数据/  (battery_meta / battery_timeseries / battery_final_states)
+输出:   支撑材料/图表/*.png   支撑材料/数据/results.json
+运行:   python 支撑材料/程序代码/analyze.py
 """
 import os, json, numpy as np, pandas as pd
 import matplotlib
@@ -19,10 +19,10 @@ for f in font_manager.fontManager.ttflist:
 plt.rcParams["axes.unicode_minus"] = False
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.environ.get("MM_ROOT", os.path.dirname(HERE))  # paper/ (可用环境变量覆盖)
-FIG = os.path.join(ROOT, "figures")
+ROOT = os.environ.get("MM_ROOT", os.path.dirname(HERE))  # 支撑材料/ (可用环境变量覆盖)
+FIG  = os.path.join(ROOT, "图表")
 os.makedirs(FIG, exist_ok=True)
-DATA = os.path.join(ROOT, "..", "data", "dataset")
+DATA = os.path.join(ROOT, "数据")
 
 meta = pd.read_csv(os.path.join(DATA, "battery_meta.csv"), encoding="utf-8-sig")
 fin  = pd.read_csv(os.path.join(DATA, "battery_final_states.csv"), encoding="utf-8-sig")
@@ -48,15 +48,16 @@ ax.set_xlabel("循环次数 n"); ax.set_ylabel("SOH")
 ax.set_title("容量衰减曲线（不同环境温度）"); ax.legend(fontsize=8)
 fig.tight_layout(); fig.savefig(os.path.join(FIG,"q1_decay.png"), dpi=160); plt.close(fig)
 
-# 2) 三阶段划分(单电池) 图
+# 2) 三阶段划分(单电池) 图 —— 按 phase_label 真实三阶段着色(与 q1_solution.py 一致)
 bid = fin["battery_id"].iloc[0]
 g = ts[ts["battery_id"] == bid].sort_values("cycle")
-kn = int(g["rul_cycles"].iloc[0])
 fig, ax = plt.subplots(figsize=(6.6, 4.2))
-ax.plot(g["cycle"], g["SOH"], lw=1.3, label="SOH 实测")
-seg = g["cycle"].values
-ax.axvspan(seg.min(), kn, alpha=0.12, color="green", label="阶段Ⅰ 正常退化")
-ax.axvspan(kn, seg.max(), alpha=0.15, color="orange", label="阶段Ⅱ/Ⅲ 加速–失效")
+ax.plot(g["cycle"], g["SOH"], lw=1.3, color="#34495e", label="SOH 实测")
+ax.plot(g["cycle"], g["soh_t"], lw=1.1, ls="--", color="#c0392b", label="退化趋势 $soh_t$")
+for lbl, col, name in [(1, "green", "阶段Ⅰ 初始陡降"), (2, "#2980b9", "阶段Ⅱ 近似线性"), (3, "orange", "阶段Ⅲ 加速失效")]:
+    sub = g[g["phase_label"] == lbl]
+    if len(sub):
+        ax.axvspan(sub["cycle"].min(), sub["cycle"].max(), alpha=0.12, color=col, label=name)
 ax.axhline(0.70, ls="--", c="red", lw=1)
 ax.set_xlabel("循环次数 n"); ax.set_ylabel("SOH")
 ax.set_title(f"三阶段划分示例（{bid}）"); ax.legend(fontsize=8)
@@ -161,7 +162,7 @@ for b, v in zip(bars, mc["rmse"]):
 ax.set_ylabel("RMSE"); ax.set_title(f"RUL 预测模型对比（{bid}）")
 fig.tight_layout(); fig.savefig(os.path.join(FIG,"q2_model.png"), dpi=160); plt.close(fig)
 
-with open(os.path.join(HERE, "results.json"), "w", encoding="utf-8") as fp:
+with open(os.path.join(DATA, "results.json"), "w", encoding="utf-8") as fp:
     json.dump(results, fp, ensure_ascii=False, indent=2)
 print("=== 关键结果 ===")
 print("Q1 因子重要性:", results["q1_importance"], "相关性:", results["q1_corr"])

@@ -9,7 +9,7 @@
 说明:
   RUL = 自退役判定点(SOH=0.80)至EOL(0.70)的循环数(演示值, 成员B建模后可替换)
   cluster = K-means(SOH+内阻, k=3); grade = 双指标规则分级(SOH+内阻)
-运行: python data/dataset/generate_data.py
+运行: python 支撑材料/程序代码/generate_data.py
 """
 import os, json, numpy as np, pandas as pd
 import matplotlib
@@ -23,7 +23,8 @@ for f in font_manager.fontManager.ttflist:
 plt.rcParams["axes.unicode_minus"] = False
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FIG = os.path.join(os.path.dirname(os.path.dirname(HERE)), "paper", "figures")  # paper/figures
+DATA = os.path.join(os.path.dirname(HERE), "数据")      # 支撑材料/数据
+FIG = os.path.join(os.path.dirname(HERE), "图表")       # 支撑材料/图表
 os.makedirs(FIG, exist_ok=True)
 
 # 统一接口标准(数据格式规范1.1.md §2.1/§2.4)
@@ -39,9 +40,9 @@ def get_grade(soh):
     return "建议回收"
 
 # ---------------- 读取 ----------------
-ts  = pd.read_csv(os.path.join(HERE, "battery_timeseries.csv"), encoding="utf-8-sig")
-fin = pd.read_csv(os.path.join(HERE, "battery_final_states.csv"), encoding="utf-8-sig")
-meta = pd.read_csv(os.path.join(HERE, "battery_meta.csv"), encoding="utf-8-sig")
+ts  = pd.read_csv(os.path.join(DATA, "battery_timeseries.csv"), encoding="utf-8-sig")
+fin = pd.read_csv(os.path.join(DATA, "battery_final_states.csv"), encoding="utf-8-sig")
+meta = pd.read_csv(os.path.join(DATA, "battery_meta.csv"), encoding="utf-8-sig")
 
 # ---------------- 成员B: 健康指标表 ----------------
 # 退役状态 = knee 拐点(健康状态中最有信息量, 对应 SOH 82~85%) 时刻的 SOH/内阻
@@ -53,7 +54,7 @@ info = fin.groupby("battery_id").first()[["cond_id","condition","T","c_rate","do
 health = knee.merge(info, on="battery_id").drop(columns=["rul_cycles"])
 # 规范字段顺序
 health = health[["cond_id","condition","SOH","resistance","RUL","T","c_rate","dod","battery_id"]]
-health.to_csv(os.path.join(HERE, "battery_health_indicators.csv"), index=False, encoding="utf-8-sig")
+health.to_csv(os.path.join(DATA, "battery_health_indicators.csv"), index=False, encoding="utf-8-sig")
 
 # ---------------- 成员C: 分级 + 选中表 ----------------
 # 贪心选择: 内阻排序滑动窗口 (目标: 平均SOH高 + 内阻std小 + 最低SOH高; 约束: 6~14块/极差≤range_max)
@@ -89,7 +90,7 @@ S, R = sel["SOH"].values, sel["resistance"].values
 mb = greedy(S, R)
 sel["selected"] = mb.astype(int)
 sel = sel[["cond_id","condition","SOH","resistance","RUL","T","c_rate","dod","selected","cluster","grade","battery_id"]]
-sel.to_csv(os.path.join(HERE, "selected_batteries.csv"), index=False, encoding="utf-8-sig")
+sel.to_csv(os.path.join(DATA, "selected_batteries.csv"), index=False, encoding="utf-8-sig")
 
 # ---------------- 关键图 ----------------
 # 图1: 退役电池分级散点 (K-means 颜色 + 选中框)

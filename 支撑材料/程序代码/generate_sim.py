@@ -21,6 +21,7 @@ import numpy as np, pandas as pd, os
 
 rng = np.random.default_rng(20260810)   # 固定种子, 可复现
 HERE = os.path.dirname(os.path.abspath(__file__))
+DATA = os.path.join(os.path.dirname(HERE), "数据")   # 支撑材料/数据
 
 # =====================================================================
 # 1. 化学体系规格  (额定容量/电压: [L1] NASA 2Ah; [Sev19] LFP 1.1Ah; [U6] NCM 4.9Ah)
@@ -166,9 +167,9 @@ eis = pd.DataFrame(eis_rows, columns=["battery_id", "cycle", "soh", "freq_Hz", "
 # =====================================================================
 # 7. 写出 (utf-8-sig 兼容Excel) 与 摘要
 # =====================================================================
-wide.to_csv(os.path.join(HERE, "sim_battery_cycles.csv"), index=False, encoding="utf-8-sig")
-meta.to_csv(os.path.join(HERE, "battery_meta.csv"), index=False, encoding="utf-8-sig")
-eis.to_csv(os.path.join(HERE, "eis_spectrum.csv"), index=False, encoding="utf-8-sig")
+wide.to_csv(os.path.join(DATA, "sim_battery_cycles.csv"), index=False, encoding="utf-8-sig")
+meta.to_csv(os.path.join(DATA, "battery_meta.csv"), index=False, encoding="utf-8-sig")
+eis.to_csv(os.path.join(DATA, "eis_spectrum.csv"), index=False, encoding="utf-8-sig")
 
 nb = meta.shape[0]
 life = meta.groupby("chemistry")["eol_cycle"].agg(["count", "min", "median", "max"])
@@ -178,4 +179,4 @@ print("cycles-to-EOL by chemistry  count/min/median/max:")
 print(life.to_string())
 print("files:")
 for f in ["sim_battery_cycles.csv", "battery_meta.csv", "eis_spectrum.csv"]:
-    p = os.path.join(HERE, f); print(f"  {f}: {os.path.getsize(p)/1e6:.2f} MB")
+    p = os.path.join(DATA, f); print(f"  {f}: {os.path.getsize(p)/1e6:.2f} MB")

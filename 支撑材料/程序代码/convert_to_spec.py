@@ -25,6 +25,7 @@ import numpy as np
 import pandas as pd
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+DATA = os.path.join(os.path.dirname(HERE), "数据")   # 支撑材料/数据
 
 
 def get_stage(soh: float) -> str:
@@ -43,7 +44,7 @@ def get_condition(T, c_rate, dod) -> str:
 
 
 def main():
-    src = pd.read_csv(os.path.join(HERE, "sim_battery_cycles.csv"))
+    src = pd.read_csv(os.path.join(DATA, "sim_battery_cycles.csv"))
 
     # ---- 编号: cond_id 按 battery_id 首次出现顺序 0-based ----
     order = src["battery_id"].drop_duplicates().tolist()
@@ -95,8 +96,8 @@ def main():
     for c in EXTRAS:
         final[c] = last[c].values
 
-    ts_path  = os.path.join(HERE, "battery_timeseries.csv")
-    fs_path  = os.path.join(HERE, "battery_final_states.csv")
+    ts_path  = os.path.join(DATA, "battery_timeseries.csv")
+    fs_path  = os.path.join(DATA, "battery_final_states.csv")
     spec.to_csv(ts_path, index=False, encoding="utf-8-sig")
     final.to_csv(fs_path, index=False, encoding="utf-8-sig")
 
@@ -110,7 +111,7 @@ def main():
     print("condition 示例:", sorted(spec["condition"].unique())[:4], "...")
     assert spec["dod"].between(0, 1).all(), "dod 必须为小数且在 [0,1]"
     assert spec["SOH"].between(0.68, 1.01).all(), "SOH 越界"
-    print("校验通过 ✓")
+    print("校验通过 [OK]")
 
 
 if __name__ == "__main__":

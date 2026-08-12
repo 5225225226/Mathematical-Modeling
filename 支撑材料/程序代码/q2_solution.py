@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 A题 问题2 求解脚本 —— SOH辨识 + RUL预测(EEMD-GRU主模型) + 工况扰动 + 灵敏度
-数据集: data/dataset/
-输出:   paper/figures/q2_*.png   paper/code/q2_results.json
-运行:   .venv\Scripts\python.exe paper/code/q2_solution.py
+数据集: 支撑材料/数据/
+输出:   支撑材料/图表/q2_*.png   支撑材料/数据/q2_results.json
+运行:   python 支撑材料/程序代码/q2_solution.py
 """
 import os, json, math, warnings
 import numpy as np
@@ -33,10 +33,10 @@ import torch.nn as nn
 torch.manual_seed(42); np.random.seed(42)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.environ.get("MM_ROOT", os.path.dirname(HERE))  # paper/
-FIG = os.path.join(ROOT, "figures")
+ROOT = os.environ.get("MM_ROOT", os.path.dirname(HERE))  # 支撑材料/
+FIG  = os.path.join(ROOT, "图表")
 os.makedirs(FIG, exist_ok=True)
-DATA = os.path.join(ROOT, "..", "data", "dataset")
+DATA = os.path.join(ROOT, "数据")
 
 EOL = 0.70          # 失效阈值 SOH=70%
 RETIRE = 0.80       # 退役判定点 SOH=80%
@@ -507,8 +507,8 @@ if __name__ == "__main__":
     print("\n[灵敏度分析]...")
     task_sensitivity(bid)
 
-    with open(os.path.join(HERE, "q2_results.json"), "w", encoding="utf-8") as fp:
+    with open(os.path.join(DATA, "q2_results.json"), "w", encoding="utf-8") as fp:
         json.dump(results, fp, ensure_ascii=False, indent=2, default=str)
     print("\n=== 完成 ===")
-    print("结果: paper/code/q2_results.json")
+    print("结果: 支撑材料/数据/q2_results.json")
     print("图表:", sorted(f for f in os.listdir(FIG) if f.startswith("q2_")))

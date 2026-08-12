@@ -235,7 +235,7 @@ LFP & 18 & $\{23,35\}$ & $\{1.0,2.0,3.0\}$ & 80\% & $2\times3$ $\times3$ 重复 
 \caption{内阻随循环增长曲线（NCM 体系，不同温度）}\label{fig:q1_resistance}
 \end{figure}
 
-由图 \ref{fig:q1_decay} 我们可以发现，容量衰减具有三个显著特征：其一，温度越高衰减越快，45°C 电池寿命不足 10°C 电池的 1/5；其二，衰减整体呈"初始较快—中间近似线性—末期加速"的三阶段形态；其三，曲线伴随局部回升毛刺，即容量再生现象。由图 \ref{fig:q1_resistance} 我们发现，内阻随循环近似线性上升，且温度越高上升越快；全批内阻平均增幅约 10.2 倍，其中 NCM 体系由 0.016\,Ω 增至 0.236\,Ω（约 14 倍），增幅最为显著。我们从机理解释这一现象：由于高温加速 SEI 膜生长与电解液氧化，低温高倍率诱发析锂，二者均导致锂库存损失（LLI）与活性物质损失（LAM）累积，宏观表现为容量下降与内阻升高。据此，容量与内阻构成退化特征分析的两大主指标，其中内阻在变工况下更稳健，可作为问题3 分级判别的关键维度。
+由图 \ref{fig:q1_decay} 我们可以发现，容量衰减具有三个显著特征：其一，温度越高衰减越快，45°C 电池寿命不足 10°C 电池的 1/5；其二，衰减整体呈"初始较快—中间近似线性—末期加速"的三阶段形态；其三，曲线伴随局部回升毛刺，即容量再生现象。由图 \ref{fig:q1_resistance} 我们发现，内阻随循环近似线性上升，且温度越高上升越快；全批内阻平均增幅约 11.2 倍，其中 NCM 体系由 0.016\,Ω 增至 0.236\,Ω（约 15 倍），增幅最为显著。我们从机理解释这一现象：由于高温加速 SEI 膜生长与电解液氧化，低温高倍率诱发析锂，二者均导致锂库存损失（LLI）与活性物质损失（LAM）累积，宏观表现为容量下降与内阻升高。据此，容量与内阻构成退化特征分析的两大主指标，其中内阻在变工况下更稳健，可作为问题3 分级判别的关键维度。
 
 \subsection{退化三阶段划分模型}
 考虑到容量衰减形态存在阶段性差异，我们尝试建立退化三阶段划分模型。设容量衰减曲线的滑动斜率为 $s(n)=\dfrac{d\,SOH(n)}{dn}$，我们采用滚动窗口计算相邻窗口的斜率变化率 $\Delta s(n)$，并以 $\Delta s$ 的局部极值作为阶段边界。结合 \cite{Sto19} 的三阶段模型与 \cite{Ver22} 的拐点理论，我们得到三阶段判据与主导机理如表 \ref{tab:phase} 所示。
@@ -254,7 +254,7 @@ LFP & 18 & $\{23,35\}$ & $\{1.0,2.0,3.0\}$ & 80\% & $2\times3$ $\times3$ 重复 
 \caption{退化三阶段划分判据与主导机理}\label{tab:phase}
 \end{table}
 
-以某典型 NCM 电池为例，三阶段划分结果如图 \ref{fig:q1_phase} 所示。从图中我们观察到，拐点出现在 SOH 82\%--85\% 区间，本批数据拐点循环均值约 655 循环、中位数 541 循环；拐点后衰减速率显著增大，与 \cite{Sto19} 报道的加速老化拐点一致。据此我们认为，SOH 82\%--85\% 区间可作为退役评估的预警窗口，为问题3 退役判定点（SOH=0.80）的选取提供依据。
+以某典型 NCM 电池为例，三阶段划分结果如图 \ref{fig:q1_phase} 所示。从图中我们观察到，拐点出现在 SOH 82\%--85\% 区间，本批数据拐点循环均值约 383 循环、中位数 284 循环；拐点后衰减速率显著增大，与 \cite{Sto19} 报道的加速老化拐点一致。据此我们认为，SOH 82\%--85\% 区间可作为退役评估的预警窗口，为问题3 退役判定点（SOH=0.80）的选取提供依据。
 
 \begin{figure}[H]
 \centering
@@ -400,7 +400,7 @@ $EOL$ & 失效阈值 & 0.70 & 题设与 \cite{Ver22} \\
 综上，我们通过"多维特征体系刻画 + 退化规律可视化 + 三阶段划分 + 机理链梳理 + 多方法因子量化 + 综合退化模型复现"六步分析，得到如下结论：
 \begin{enumerate}
 \item 退化特征方面，容量呈三阶段指数型衰减、内阻准线性上升，CCCT 缩短、CVCT 增加，特征体系与文献量级一致；
-\item 阶段划分方面，SOH 82\%--85\% 为加速拐点预警区间，本批数据拐点循环均值约 655；
+\item 阶段划分方面，SOH 82\%--85\% 为加速拐点预警区间，本批数据拐点循环均值约 383；
 \item 核心因子方面，温度与倍率为第一梯队核心因子（RF 合计重要性约 0.89），放电深度在老化后期主导；
 \item 机理与数据耦合方面，综合退化模型完整复现温度翻倍律、倍率指数律与 DoD 疲劳律，为问题2 的寿命预测提供物理先验，为问题3 的分级筛选提供内阻与工况维度。
 \end{enumerate}
@@ -584,29 +584,214 @@ SOH(t)=\frac{Q(t)}{Q_{rated}}\times 100\%
 \newpage
 \begin{appendices}
 
-\section{文件列表}
+% =====================================================================
+% 附录 A  支撑材料文件清单
+% =====================================================================
+\section{支撑材料文件清单}
+本附录列出全部支撑材料文件（与提交的压缩包一致），按「程序代码 / 数据文件 / 文档与图表」三类组织。程序代码的完整可运行源码在附录 C 中逐文件列出；数据文件的构建依据、字段含义与规模统计见附录 B。
+
+\subsection{程序代码}
 \begin{table}[H]
 \centering
+\small
 \begin{tabularx}{\textwidth}{LL}
 \toprule
 文件名 & 功能描述 \\
 \midrule
-\texttt{data/dataset/generate\_sim.py} & 仿真数据生成器（成员A，多因子衰减模型） \\
-\texttt{data/dataset/generate\_data.py} & 数据流转生成器（生成健康指标表 + 选中结果表） \\
-\texttt{paper/code/analyze.py} & 问题1/2 数据分析与绘图脚本 \\
-\texttt{paper/code/preprocess\_figs.py} & 数据预处理与退化特征补充图表脚本（q0\_preprocess、q1\_resistance） \\
-\texttt{data/dataset/battery\_timeseries.csv} & 完整时序数据（成员A） \\
-\texttt{data/dataset/battery\_final\_states.csv} & 每块电池最终状态（成员A） \\
-\texttt{data/dataset/battery\_health\_indicators.csv} & 健康指标表，含 RUL（成员B接口） \\
-\texttt{data/dataset/selected\_batteries.csv} & 分级 + 编组选中结果（成员C接口） \\
-\texttt{solution\_A/Q1--Q4 解答} & 问题分步骤解答（Markdown） \\
+\texttt{paper/code/q1\_solution.py} & 问题1 全流程脚本：多维特征体系 / 退化规律可视化 / 三阶段划分 / 因子量化（随机森林+灰色关联+熵权+组合权重）/ 综合退化模型标定 / 合理性验证，输出 \texttt{q1\_results.json} \\
+\texttt{paper/code/q2\_solution.py} & 问题2 全流程脚本：SOH 辨识与置信区间 / 多模型 RUL 预测对比 / EEMD-GRU 主模型 / 工况扰动 / 灵敏度分析，输出 \texttt{q2\_results.json} \\
+\texttt{paper/code/analyze.py} & 共享数据分析脚本：问题1 退化曲线、内阻、三阶段、因子重要性图；问题2 模型对比图，输出 \texttt{results.json} \\
+\texttt{paper/code/preprocess\_figs.py} & 数据预处理图表脚本：\texttt{q0\_preprocess}、\texttt{q1\_resistance} \\
+\texttt{data/dataset/generate\_sim.py} & 仿真数据生成器（成员A）：多因子退化模型 + 容量再生 + AR(1) 噪声 + 批次差异 \\
+\texttt{data/dataset/generate\_data.py} & 派生数据表生成器：健康指标表 + 选中结果表 \\
+\texttt{data/dataset/convert\_to\_spec.py} & 数据格式规范 v1.1 转换脚本 \\
 \bottomrule
 \end{tabularx}
 \label{tab:files}
 \end{table}
 
-\section{数据流转与规范说明}
+\subsection{数据文件}
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{LL}
+\toprule
+文件名 & 内容说明 \\
+\midrule
+\texttt{battery\_meta.csv} & 电池静态参数表：153 块电池的化学体系、工况设计、批次/异常标记、基准损失率、拐点 SOH、EOL 循环 \\
+\texttt{battery\_timeseries.csv} & 循环级时序表：81\,451 条 $\times$ 35 字段，含 SOH、内阻、工况、充电特征、阶段与拐点等 \\
+\texttt{battery\_final\_states.csv} & 退役电池最终状态表：追加 \texttt{RUL}、\texttt{grade} 字段（成员 A $\to$ B/C 接口） \\
+\texttt{battery\_health\_indicators.csv} & 健康指标表（成员 B 输出）：各工况下 SOH、内阻、RUL \\
+\texttt{selected\_batteries.csv} & 分级 + 编组选中结果表（成员 C 输出）：\texttt{selected}、\texttt{cluster}、\texttt{grade} \\
+\texttt{eis\_spectrum.csv} & 电化学阻抗谱（EIS）示例数据 \\
+\texttt{sim\_battery\_cycles.csv} & 仿真中间结果：全循环原始容量序列 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{文档与图表示例}
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{LL}
+\toprule
+文件 & 说明 \\
+\midrule
+\texttt{solution\_A/问题1--问题4} & 各问题分步骤解答文档（Markdown，含建模思路与结果讨论） \\
+\texttt{paper/figures/*.png} & 论文全部图件：\texttt{q0\_preprocess}、\texttt{q1\_*}（4 张）、\texttt{q2\_*}（7 张）、\texttt{q3\_grade}、\texttt{q4\_sens} 等 \\
+\texttt{data/数据格式规范1.1.md} & 全队统一数据格式规范（字段、命名、接口） \\
+\texttt{references/} & 备赛资料库与知识库，索引见附录 D \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =====================================================================
+% 附录 B  数据说明
+% =====================================================================
+\section{数据说明}
+
+\subsection{数据构建依据}
+本题不提供原始实测数据，我们依据文献参数自主构建仿真时序数据（详见正文问题一第 \ref{sec:q1_model} 节与附录 C 的 \texttt{generate\_sim.py}）。核心为多因子容量退化模型
+\[
+r(n)=r_{0}\cdot m_{\mathrm{phase}}(n),\qquad r_{0}=r_{\mathrm{base}}\cdot f_{T}(T)\cdot f_{C}(C)\cdot f_{D}(\mathrm{DoD}),
+\]
+其中基准损失率 $r_{\mathrm{base}}=0.035\%$；温度因子 $f_{T}$ 在 $\{10,23,35,45\}\,^\circ$C 下取 $\{0.55,1.0,1.9,3.0\}$，近似满足温度每升一档损失率翻倍；倍率因子 $f_C=0.45+0.55C^{1.1}$；放电深度因子 $f_D=(\mathrm{DoD}/0.8)^{2.2}$（Wöhler 疲劳律）；阶段乘子 $m_{\mathrm{phase}}$ 对应三阶段取 $\{1.8,1.0,2.2\}$。在趋势真值 $soh_t$ 之上叠加 AR(1) 测量噪声（$\rho=0.90$、$\sigma=4\times10^{-4}$）与容量再生尖刺（出现概率约 5\%），并按批次差异（$\pm0.8\%$）与异常电池（约 2.6\%）扰动，最终生成 153 块电池、81\,451 条循环级记录，覆盖 NCM/LCO/LFP 三种体系。各参数的具体取值依据见正文表 \ref{tab:params}。
+
+\subsection{核心数据文件字段说明}
+三张核心数据表的字段含义如下，其中时序表字段按功能分组列示。
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{LLL}
+\toprule
+字段 & 类型 & 说明 \\
+\midrule
+\texttt{battery\_id} & str & 电池唯一标识 \\
+\texttt{chemistry} & str & 化学体系：NCM / LCO / LFP \\
+\texttt{temperature\_C}, \texttt{charge\_rate\_C}, \texttt{dod\_pct} & float & 工况设计参数：温度 / 倍率 / 放电深度 \\
+\texttt{batch\_id}, \texttt{is\_abnormal} & int/bool & 生产批次、异常电池标记 \\
+\texttt{r0\_pct\_per\_cyc} & float & 基准每循环容量损失率 \\
+\texttt{knee\_soh} & float & 拐点 SOH 窗口（0.82--0.85） \\
+\texttt{eol\_cycle}, \texttt{reached\_eol} & int/bool & EOL 循环序号与是否到达失效 \\
+\bottomrule
+\end{tabularx}
+\caption{\texttt{battery\_meta.csv} 关键字段}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{LLL}
+\toprule
+字段组 & 字段 & 说明 \\
+\midrule
+标识 & \texttt{battery\_id, chemistry, cell\_format, batch\_id, is\_abnormal} & 电池身份与属性 \\
+工况 & \texttt{T, c\_rate, dod, condition, cond\_id} & 温度/倍率/放电深度与工况命名 \\
+容量 & \texttt{SOH, soh\_t, capacity\_Ah, q\_ref\_Ah, rated\_capacity\_Ah} & 容量保持率、退化趋势、当前/参考/额定容量 \\
+特征 & \texttt{resistance, ccct\_min, cvct\_min, ce} & 内阻、恒流/恒压充电时长、库伦效率 \\
+阶段寿命 & \texttt{stage, phase\_label, knee\_cycle, rul\_cycles, is\_eol} & 阶段（阈值法/形态法）、拐点循环、剩余寿命 \\
+\bottomrule
+\end{tabularx}
+\caption{\texttt{battery\_timeseries.csv} 关键字段（35 字段按功能分组）}
+\end{table}
+
+\subsection{数据规模与质量统计}
+\begin{sloppypar}
+\begin{itemize}
+\item \textbf{规模}：153 块电池、81\,451 条循环级记录；其中 NCM 108 块（$4\times3\times3$ 全因子 $\times3$ 重复）、LCO 27 块、LFP 18 块；
+\item \textbf{质量}：缺失值 0 条、重复记录 0 条；SOH 观测范围 $[0.6953,1.0007]$，内阻范围 $[0.0142,0.3973]$\,$\Omega$，均处于合理物理区间；
+\item \textbf{异常与批次}：3 个生产批次（系统偏差 $-0.6\%\sim+0.8\%$），4 块初始容量偏低异常电池（约 2.6\%），均以字段显式标注；
+\item \textbf{阶段覆盖}：三阶段记录占比 正常运行 41.9\%、性能劣化 37.2\%、失效临界 21.0\%，退化样本覆盖完整。
+\end{itemize}
+\end{sloppypar}
+
+\subsection{数据流转与规范说明}
 数据接口严格执行 \texttt{data/数据格式规范1.1.md}：时序表 \texttt{stage} 采用 SOH 阈值法（$\ge0.90$ 正常运行、$\ge0.80$ 性能劣化、其余失效临界）；\texttt{condition} 命名采用 \texttt{T\{温度\}\_C\{倍率\}\_D\{放电深度\}}；\texttt{dod} 统一小数；\texttt{grade} 采用规范 §2.4 统一代码。健康指标表与选中结果表为成员 B/C 的接口产物，可在建模完成后回填更新。
+
+% =====================================================================
+% 附录 C  程序代码
+% =====================================================================
+\section{程序代码}
+
+\subsection{运行环境与使用说明}
+\begin{sloppypar}
+全部程序使用 Python 3 编写，依赖 \texttt{numpy}、\texttt{pandas}、\texttt{matplotlib}、\texttt{scipy}、\texttt{scikit-learn}（问题2 另需 \texttt{PyEMD} 与 \texttt{pytorch}），建议在项目根目录下依次运行：
+\end{sloppypar}
+\begin{verbatim}
+# 1) 数据生成（成员A，数据已生成则跳过）
+python data/dataset/generate_sim.py
+python data/dataset/generate_data.py
+
+# 2) 求解与绘图（输出 paper/figures/*.png 与 paper/code/*.json）
+python paper/code/q1_solution.py
+python paper/code/q2_solution.py
+python paper/code/analyze.py
+python paper/code/preprocess_figs.py
+\end{verbatim}
+随机种子已固定（\texttt{numpy}、\texttt{torch} 均 \texttt{seed(42)}），结果可完全复现。以下为全部可运行源码，与支撑材料压缩包内容一致。
+
+\renewcommand{\lstlistingname}{程序}
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  numbers=left, numbersep=0.6em,
+  frame=single, framerule=0.3pt,
+  breaklines=true, keepspaces=true, showstringspaces=false, breakatwhitespace=false,
+  keywordstyle=\color{NavyBlue},
+  commentstyle=\color{codegreen},
+  stringstyle=\color{PineGreen!90!black},
+  numberstyle=\color{gray},
+  captionpos=b,
+}
+
+\subsection{问题1 全流程求解脚本（\texttt{q1\_solution.py}）}
+\lstinputlisting[language=Python, caption=问题1 全流程求解脚本]{code/q1_solution.py}
+
+\subsection{问题2 求解脚本（\texttt{q2\_solution.py}）}
+\lstinputlisting[language=Python, caption=问题2 求解脚本（EEMD-GRU 主模型）]{code/q2_solution.py}
+
+\subsection{共享数据分析脚本（\texttt{analyze.py}）}
+\lstinputlisting[language=Python, caption=共享数据分析脚本]{code/analyze.py}
+
+\subsection{数据预处理图表脚本（\texttt{preprocess\_figs.py}）}
+\lstinputlisting[language=Python, caption=数据预处理图表脚本]{code/preprocess_figs.py}
+
+\subsection{仿真数据生成器（\texttt{generate\_sim.py}）}
+\lstinputlisting[language=Python, caption=仿真数据生成器]{../data/dataset/generate_sim.py}
+
+\subsection{派生数据表生成器（\texttt{generate\_data.py}）}
+\lstinputlisting[language=Python, caption=派生数据表生成器]{../data/dataset/generate_data.py}
+
+\subsection{数据格式规范转换脚本（\texttt{convert\_to\_spec.py}）}
+\lstinputlisting[language=Python, caption=数据格式规范转换脚本]{../data/dataset/convert_to_spec.py}
+
+% =====================================================================
+% 附录 D  参考资料与知识库索引
+% =====================================================================
+\section{参考资料与知识库索引}
+
+\subsection{参考文献}
+正文参考文献共 12 条（见前文 Bibliography，由 \texttt{paper/ref.bib} 管理，编号遵循 GB/T 7714），涵盖退化机理综述 \cite{Ver22,Mad25}、影响因子实验 \cite{Xu21,Sto19,Str24,For12}、健康特征 \cite{Wil20}、寿命预测方法 \cite{Wu09,Sev19} 及本地精读文献 \cite{L1local,L2local,司守奎2011数学建模算法与应用}。
+
+\subsection{知识库资料索引}
+支撑材料中 \texttt{references/} 为备赛资料库与知识库，目录结构与关键内容如下（完整索引见 \texttt{references/README\_资料索引.md}）：
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{LL}
+\toprule
+目录 / 文件 & 内容 \\
+\midrule
+\texttt{01\_竞赛试题/} & 竞赛原题 + 题目解析与数据构建指南 \\
+\texttt{02\_竞赛规则/} & 论文格式规范、AI 工具使用规定、合规检查清单 \\
+\texttt{03\_A题论文精读/} & 核心文献原文 + 详细精读（EEMD-GRU 寿命预测、退役电池快速聚类） \\
+\texttt{04\_数学建模知识/} & 题型算法总览、AI 辅助建模提示词、论文写作规范、算法源代码库等知识库 \\
+\texttt{05\_工具速成/} & Python 与 Matlab 数模速成、VS Code + LaTeX 统一配置指南 \\
+\texttt{06\_undermind论文精读/} & 问题1 相关 7 篇英文文献精读（退化机理、影响因子、健康特征） \\
+\texttt{数据汇总/} & 数据来源总览与逐条数据来源清单（含 PDF 位置） \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \end{appendices}
 \end{document}

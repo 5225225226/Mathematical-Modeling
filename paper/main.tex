@@ -406,54 +406,7 @@ $EOL$ & 失效阈值 & 0.70 & 题设与 \cite{Ver22} \\
 \end{enumerate}
 
 \newpage
-\section{问题二：SOH 评估与剩余寿命预测}
-
-\subsection{SOH 辨识}
-我们以容量保持率定义健康状态：
-\begin{equation}
-SOH(t)=\frac{Q(t)}{Q_{rated}}\times 100\%
-\end{equation}
-由于容量观测含噪声与容量再生，我们对容量时序做滑动平均平滑（窗口 25 循环），残差近似正态，给出 95\% 置信带 $SOH(t)\pm 1.96\sigma$。图 \ref{fig:q2_soh} 为单电池 SOH 辨识与置信区间结果，我们发现置信带平均宽度控制在 2\% 以内，能有效包络容量再生的尖刺波动。
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.75\textwidth]{figures/q2_soh.png}
-\caption{SOH 辨识与 95\% 置信区间}\label{fig:q2_soh}
-\end{figure}
-
-\subsection{RUL 预测建模}
-我们以退役判定点（SOH$=0.80$）为预测起点，尝试将容量曲线外推至 EOL（SOH$=0.70$），并对比四种模型：
-\begin{itemize}[itemindent=2em]
-\item 线性外推：$SOH(n)=k n+b$；
-\item 二阶多项式：$SOH(n)=c_0+c_1 n+c_2 n^2$；
-\item 指数拟合：$SOH(n)=a e^{-bn}+c$；
-\item 随机森林回归：以循环次数为特征直接回归。
-\end{itemize}
-各模型测试集（SOH$<0.80$ 区间）RMSE 如表 \ref{tab:rul} 所示，我们发现二阶多项式精度最优。RUL 定义为预测外推曲线首次达到 0.70 时的循环数减去当前循环数。
-
-\begin{table}[H]
-\centering
-\begin{tabularx}{0.62\textwidth}{lCC}
-\toprule
-模型 & RMSE & 说明 \\
-\midrule
-线性外推 & 0.047 & 最低门槛 \\
-二阶多项式 & \textbf{0.037} & \textbf{精度最优} \\
-指数拟合 & 0.047 & 含渐近线约束 \\
-随机森林 & 0.058 & 非线性基线 \\
-\bottomrule
-\end{tabularx}
-\caption{RUL 预测模型对比（测试集 RMSE）}\label{tab:rul}
-\end{table}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.72\textwidth]{figures/q2_model.png}
-\caption{RUL 预测模型 RMSE 对比}\label{fig:q2_model}
-\end{figure}
-
-\subsection{恶劣工况扰动分析}
-依据问题1 的机理链，我们尝试对极端高温（$T\in\{45,55\}$）、低温（$-10^\circ$C）、大倍率（$2\sim5$C）、过充过放进行参数扰动注入，通过多因子衰减模型 \eqref{eq:degrade} 重新生成容量曲线并预测 RUL。结果显示：极端高温与低温对 RUL 缩短影响最显著（缩短 30\%--70\%），大倍率次之，与文献结论 \cite{Ver22,Mad25} 一致。全批退役电池在退役判定点处的 RUL 分布为均值约 149 循环、标准差 117 循环。
+\input{q2_section.tex}
 
 \newpage
 \section{问题三：梯次筛选与储能编组多目标优化}
